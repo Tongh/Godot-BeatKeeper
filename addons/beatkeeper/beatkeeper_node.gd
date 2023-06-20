@@ -1,30 +1,30 @@
-tool
+@tool
 extends AudioStreamPlayer
 
-export var Tempo : float = 100 # BPM
-export var Offset_in_MS : int = 0 # Milliseconds
-export var PlayDelay_MS : int = 0 # Milliseconds
+@export var Tempo : float = 100 # BPM
+@export var Offset_in_MS : int = 0 # Milliseconds
+@export var PlayDelay_MS : int = 0 # Milliseconds
 
 # Physics process with high forced physics fps may result in more stability
 enum ProcessEnum {PROCESS, PHYSICS_PROCESS}
-export(ProcessEnum) var processing_mode = ProcessEnum.PROCESS
+@export var processing_mode : ProcessEnum = ProcessEnum.PROCESS
 
 # Emits alt signals so audio can start earlier than the beat actually happens
 # Example: AudioStreamPlayer.play() on an audio signal emitted would start playing at the correct time
-export var audio_mode : bool = false 
+@export var audio_mode : bool = false 
 
 # Whether to emit these beats
-export var whole_beats : bool = true
-export var half_beats : bool = false
-export var third_beats : bool = false
-export var quarter_beats : bool = false
-export var fifth_beats : bool = false
-export var sixth_beats : bool = false
-export var seventh_beats : bool = false
-export var eighth_beats : bool = false
-export var ninth_beats : bool = false
-export var twelfth_beats : bool = false
-export var sixteenth_beats : bool = false
+@export var whole_beats : bool = true
+@export var half_beats : bool = false
+@export var third_beats : bool = false
+@export var quarter_beats : bool = false
+@export var fifth_beats : bool = false
+@export var sixth_beats : bool = false
+@export var seventh_beats : bool = false
+@export var eighth_beats : bool = false
+@export var ninth_beats : bool = false
+@export var twelfth_beats : bool = false
+@export var sixteenth_beats : bool = false
 
 
 signal whole_beat(number, exact_msec) # 1 beat
@@ -57,12 +57,12 @@ var time_begin
 var real_playing = false
 
 func play(default : float = 0):
-	time_begin = OS.get_ticks_usec()
+	time_begin = Time.get_ticks_usec()
 	time_begin += Offset_in_MS * 1000
 	time_begin += (AudioServer.get_time_to_next_mix() + AudioServer.get_output_latency()) * 1000000
 	real_playing = true
-	yield(get_tree().create_timer(PlayDelay_MS/1000.0), "timeout")
-	.play(default)
+	await get_tree().create_timer(PlayDelay_MS/1000.0).timeout
+	play(default)
 
 var count_whole_beat : int = 0
 var count_half_beat : int = 0
@@ -99,7 +99,7 @@ func begin_ms():
 	return time_begin / 1000.0
 
 func cur_ms():
-	return OS.get_ticks_msec() - begin_ms()
+	return Time.get_ticks_msec() - begin_ms()
 
 
 
